@@ -39,3 +39,15 @@ class Iris(models.Model):
 
     class Meta:
         db_table = 'iris'
+
+class File(models.Model):
+    file = models.FileField(upload_to='files/')
+    filename = models.CharField(max_length=50, null=True)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.filename
+
+    class Meta:
+        db_table = 'file'
+        verbose_name = '文件'

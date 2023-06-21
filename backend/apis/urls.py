@@ -17,8 +17,9 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from django.urls.conf import include
+from .views import FileView
 
 urlpatterns = [
     # path("admin/", admin.site.urls),
-    # path('apis/', include('apis.urls')),
+    path('file/upload/', FileView.as_view(), name='file-upload'),
 ]
