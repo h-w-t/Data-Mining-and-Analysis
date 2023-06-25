@@ -1,7 +1,7 @@
 from django.db import models
 
 
-# Create your models here.
+# ========= OrderSum ========= #
 class OrderSum(models.Model):
     id = models.IntegerField(primary_key=True)
     orderNum = models.IntegerField()
@@ -13,7 +13,7 @@ class OrderSum(models.Model):
     class Meta:
         db_table = 'ordersum'
 
-
+# ========= PositionInfo ========= #
 class PositionInfo(models.Model):
     id = models.IntegerField(primary_key=True)
     post = models.CharField(max_length=20, null=True)
@@ -25,7 +25,7 @@ class PositionInfo(models.Model):
     class Meta:
         db_table = 'positioninfo'
 
-
+# ========= Iris ========= #
 class Iris(models.Model):
     id = models.IntegerField(primary_key=True)
     SpeL = models.FloatField()
@@ -51,3 +51,29 @@ class File(models.Model):
     class Meta:
         db_table = 'file'
         verbose_name = '文件'
+
+# ========= Apriori ========= #
+class Aprioridb(models.Model):
+    id = models.IntegerField(primary_key=True, auto_created=True)
+    item1 = models.CharField(max_length=20, null=True)
+    item2 = models.CharField(max_length=20, null=True)
+    item3 = models.CharField(max_length=20, null=True)
+    item4 = models.CharField(max_length=20, null=True)
+
+    def __str__(self):
+        return self.id
+
+    class Meta:
+        db_table = 'aprioridb'
+        verbose_name = '关联规则'
+
+# ========= ClassifyResults ========= #
+
+# class ClassifyResults(models.Model):
+#     tree_height = models.IntegerField()
+#     child_node_num = models.IntegerField()
+#     png = models.ImageField(upload_to='png/')
+#
+#     class Meta:
+#         db_table = 'ClassifyResults'
+#         verbose_name = '图片结果'

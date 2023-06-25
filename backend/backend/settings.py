@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    'corsheaders',
 
     'rest_framework',
     'coreapi',
@@ -53,6 +54,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    'corsheaders.middleware.CorsMiddleware'
 ]
 
 ROOT_URLCONF = "backend.urls"
@@ -143,3 +145,6 @@ REST_FRAMEWORK = {
 # 配置文档上传的路径
 MEDIA_ROOT = BASE_DIR / "media"
 MEDIA_URL = "media/"
+
+# 配置跨域
+CORS_ORIGIN_ALLOW_ALL = True

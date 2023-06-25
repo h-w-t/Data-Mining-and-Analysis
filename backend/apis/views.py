@@ -3,11 +3,11 @@ from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.generics import GenericAPIView
 from rest_framework.views import APIView
-import csv
+# import csv
 
 from .models import File, Iris, OrderSum, PositionInfo
 from .serializers import FileSerializer, IrisSerializer
-from .algorithms import Clustering
+from .algorithms import Classifier
 
 
 # ========= 文件上传 ========= #
@@ -66,12 +66,16 @@ class FileView(GenericAPIView):
 
 
 # ========= 鸢尾花数据集的查询 ========= #
+
+
+# ========= 分类算法(决策树) ========= #
 class IrisView(GenericAPIView):
     queryset = Iris.objects.all()
     serializer_class = IrisSerializer
 
-    def get(self, request, *args, **kwargs):
-        ser = self.serializer_class(self.queryset, many=True)
+    def get(self, request, *args, **kwargs):    # 鸢尾花数据集的查询
+        queryset = self.get_queryset()  # 在get()方法中调用self.get_queryset()来获取queryset,而不是直接访问 self.queryset
+        ser = self.serializer_class(queryset, many=True)
         return Response({
             "code": 200,
             "msg": "获取成功",
@@ -79,16 +83,13 @@ class IrisView(GenericAPIView):
         }, status=status.HTTP_200_OK)
 
 
-# ================================================================================================================== #
-'''聚类结果获取接口'''
+"""
+class ClassifyView(GenericAPIView):
+    '''分类算法视图'''
+    queryset = ClassifyResults.objects.all()
+    serializer_class = ClassifyResultsSerializer
+    def post(self, request, tree_height, child_node_num, *args, **kwargs):
+        pass
+"""
 
-
-class ClusterView(APIView):
-
-    def get(self, request, *args, **kwargs):
-        ser = self.serializer_class(self.queryset, many=True)
-        return Response({
-            "code": 200,
-            "msg": "获取成功",
-            "data": ser.data
-        }, status=status.HTTP_200_OK)
+# ========= 分类算法(决策树) ========= #

@@ -22,5 +22,6 @@ from .views import FileView, IrisView
 urlpatterns = [
     # path("admin/", admin.site.urls),
     path('file/upload/', FileView.as_view(), name='file-upload'),
-    path('iris/upload/', IrisView.as_view(), name='iris-upload'),
+    path('classify/all/', IrisView.as_view(), name='iris-all'),
+    # path('classify/<int:tree_height>&<int:child_node_num>/', ClassifyView.as_view(), name='classify-parameter'),
 ]
