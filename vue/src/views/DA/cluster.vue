@@ -7,22 +7,25 @@
           <el-card style="width: 80%; height: 40%;" class="box-card">
             <div slot="header" class="clearfix">
               <span>数据准备</span>
-              <el-button style="float: right; padding: 3px 0" type="text">分析数据</el-button>
+              <el-button size="medium" style="float: right; padding: 3px 0;" type="primary">分析数据</el-button>
             </div>
-            <el-upload
-                class="upload-demo"
-                action="https://jsonplaceholder.typicode.com/posts/"
-                :on-preview="handlePreview"
-                :on-remove="handleRemove"
-                :before-remove="beforeRemove"
-                multiple
-                :limit="3"
-                :on-exceed="handleExceed"
-                :file-list="fileList">
-              <div class="upload-container">
-                <el-button size="medium" type="primary">上传数据文件</el-button>
-                <div class="upload-tip">请上传 CSV 文件</div>
-              </div>
+<!--            <el-upload-->
+<!--                class="upload-demo"-->
+<!--                action="https://jsonplaceholder.typicode.com/posts/"-->
+<!--                :on-preview="handlePreview"-->
+<!--                :on-remove="handleRemove"-->
+<!--                :before-remove="beforeRemove"-->
+<!--                multiple-->
+<!--                :limit="3"-->
+<!--                :on-exceed="handleExceed"-->
+<!--                :file-list="fileList">-->
+<!--              <div class="upload-container">-->
+<!--                <el-button size="medium" type="primary">上传数据文件</el-button>-->
+<!--                <div class="upload-tip">请上传 CSV 文件</div>-->
+<!--              </div>-->
+<!--            </el-upload>-->
+            <el-upload action="http://localhost:9090/cluster/import" :show-file-list="true" accept="xlsx" :on-success="handleExcelImportSuccess" style="display: inline-block">
+              <el-button type="primary" class="ml-5">导入数据 <i class="el-icon-bottom"></i></el-button>
             </el-upload>
             <el-input
                 placeholder="请输入k值"
@@ -34,13 +37,13 @@
           </el-card>
         </el-col>
         <el-col :span="12" class="centered-col">
-          <el-card style="width: 80%; height: 40%;" class="box-card">
-            <div slot="header" class="clearfix">
-              <span>聚类情况</span>
+<!--          <el-card style="width: 80%; height: 40%;" class="box-card">-->
+<!--            <div slot="header" class="clearfix">-->
+<!--              <span>聚类情况</span>-->
 
-            </div>
-            <div>{{"聚类"}}</div>
-          </el-card>
+<!--            </div>-->
+<!--            <div>{{"聚类"}}</div>-->
+<!--          </el-card>-->
         </el-col>
       </el-row>
     </div>
@@ -65,18 +68,15 @@
               </el-table-column>
               <el-table-column
                   prop="date"
-                  label="日期"
+                  label="x"
                   width="180">
               </el-table-column>
               <el-table-column
                   prop="name"
-                  label="姓名"
-                  width="180">
+                  label="y"
+                  >
               </el-table-column>
-              <el-table-column
-                  prop="address"
-                  label="地址">
-              </el-table-column>
+
             </el-table>
 
           </el-card>
@@ -153,26 +153,24 @@ export default {
       input1: '',//聚类的k值
 
       tableData: [{
-        date: '2016-05-03',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1518 弄'
-      }, {
-        date: '2016-05-02',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1518 弄'
-      }, {
-        date: '2016-05-04',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1518 弄'
-      },{
-        date: '2016-05-04',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1518 弄'
-      },{
-        date: '2016-05-04',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1518 弄'
-      },],
+        date: '10', name: '20.7',},
+        {date: '6.95', name: '8.07',},
+        {date: '13.0', name: '7.58',},
+        {date: '14.0', name: '7.2',},
+        { date: '10.0', name: '8.04' },
+        { date: '8.07', name: '6.95' },
+        { date: '13.0', name: '7.58' },
+        { date: '9.05', name: '8.81' },
+        { date: '11.0', name: '8.33' },
+        { date: '14.0', name: '7.66' },
+        { date: '13.4', name: '6.81' },
+        { date: '10.0', name: '6.33' },
+        { date: '14.0', name: '8.96' },
+        { date: '12.5', name: '6.82' },
+        { date: '9.15', name: '7.2' },
+        { date: '11.5', name: '7.2' },
+        { date: '3.03', name: '4.23' },
+        ],
       fileList:[],
       // fileList: [{name: 'food.jpeg', url: 'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100'},
       //   {name: 'food2.jpeg', url: 'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100'}],
@@ -181,6 +179,10 @@ export default {
     };
   },
   methods: {
+    handleExcelImportSuccess() {
+      this.$message.success("导入成功")
+      this.load()
+    },
     indexMethod(index){
       return index+1;
     },

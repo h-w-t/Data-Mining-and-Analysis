@@ -7,24 +7,12 @@
           <el-card style="width: 80%; height: 40%;" class="box-card">
             <div slot="header" class="clearfix">
               <span>数据准备</span>
-              <el-button style="float: right; padding: 3px 0" type="text">分析数据</el-button>
+              <el-button size="medium" style="float: right; padding: 3px 0;" type="primary">分析数据</el-button>
             </div>
 <!--            数据文件上传，目前能点击选择文件-->
-              <el-upload
-                  class="upload-demo"
-                  action="https://jsonplaceholder.typicode.com/posts/"
-                  :on-preview="handlePreview"
-                  :on-remove="handleRemove"
-                  :before-remove="beforeRemove"
-                  multiple
-                  :limit="3"
-                  :on-exceed="handleExceed"
-                  :file-list="fileList">
-                <div class="upload-container">
-                  <el-button size="medium" type="primary">上传数据文件</el-button>
-                  <div class="upload-tip">请上传 CSV 文件</div>
-                </div>
-              </el-upload>
+            <el-upload action="http://localhost:9090/rules/import" :show-file-list="true" accept="xlsx" :on-success="handleExcelImportSuccess" style="display: inline-block">
+              <el-button type="primary" class="ml-5">导入数据 <i class="el-icon-bottom"></i></el-button>
+            </el-upload>
 <!--            输入置信度支持度给到input-->
               <el-input
                   placeholder="请输入置信度"
@@ -73,17 +61,22 @@
               </el-table-column>
               <el-table-column
                   prop="date"
-                  label="日期"
-                  width="180">
+                  label="物品1"
+                  width="140">
               </el-table-column>
               <el-table-column
                   prop="name"
-                  label="姓名"
-                  width="180">
+                  label="物品2"
+                  width="140">
               </el-table-column>
               <el-table-column
                   prop="address"
-                  label="地址">
+                  label="物品3"
+                width="140">
+              </el-table-column>
+              <el-table-column
+                  prop="item4"
+                  label="物品4">
               </el-table-column>
             </el-table>
 
@@ -201,25 +194,25 @@ export default {
       input2:'',//支持度
       // 下面是表单的数据，目前是写定的
       tableData: [{
-        date: '2016-05-03',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1518 弄'
+        date: '牛奶',
+        name: '啤酒',
+        address: '尿布'
       }, {
-        date: '2016-05-02',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1518 弄'
+        date: '薯片',
+        name: '啤酒',
+        address: ''
       }, {
-        date: '2016-05-04',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1518 弄'
+        date: '啤酒',
+        name: '鸡蛋',
+        address: '尿布'
       },{
-        date: '2016-05-04',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1518 弄'
+        date: '鸡蛋',
+        name: '薯片',
+        address: ''
       },{
-        date: '2016-05-04',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1518 弄'
+        date: '尿布',
+        name: '啤酒',
+        address: ''
       },],
       fileList:[],
       // fileList: [{name: 'food.jpeg', url: 'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100'},

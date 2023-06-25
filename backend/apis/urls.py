@@ -17,9 +17,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from django.urls.conf import include
-from .views import FileView
+from .views import FileView, IrisView
 
 urlpatterns = [
     # path("admin/", admin.site.urls),
     path('file/upload/', FileView.as_view(), name='file-upload'),
+    path('iris/upload/', IrisView.as_view(), name='iris-upload'),
 ]

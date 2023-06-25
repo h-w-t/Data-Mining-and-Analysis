@@ -2,18 +2,21 @@ from django.shortcuts import render
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.generics import GenericAPIView
+from rest_framework.views import APIView
+import csv
 
-from .models import File
-from .serializers import FileSerializer
+from .models import File, Iris, OrderSum, PositionInfo
+from .serializers import FileSerializer, IrisSerializer
+from .algorithms import Clustering
 
-# Create your views here.
+
+# ========= 文件上传 ========= #
 class FileView(GenericAPIView):
     queryset = File.objects.all()
     serializer_class = FileSerializer
 
     def post(self, request, *args, **kwargs):
-        file_data = request.data
-        ser = self.serializer_class(data=file_data)
+        ser = self.serializer_class(data=request.data)
         if ser.is_valid(raise_exception=True):
             ser.save()
             return Response({
@@ -27,3 +30,65 @@ class FileView(GenericAPIView):
                 "msg": "上传失败",
                 "data": ser.errors
             }, status=status.HTTP_400_BAD_REQUEST)
+        # 存储到数据库
+
+    '''读取文件到数据库'''
+    # def read_file_to_database(self, request):
+    #     file = request.file
+    #     database_name = request.data.filename
+    #     reader = csv.reader(file)
+    #
+    #     # 清空数据库
+    #     database_name.objects.all().delete()
+    #
+    #     # 获取表头
+    #     header = next(reader)
+    #     num_cols = len(header)
+    #     col_names = ["col_%d" % i for i in range(num_cols)]
+    #     mapping = dict(zip(col_names, range(num_cols)))
+    #
+    #     for row in reader:
+    #         # 从mapping里找出字段名称和索引
+    #         field1 = mapping.get("col_0")
+    #         field1_val = row[field1]
+    #
+    #         field2 = mapping.get("col_1")
+    #         field2_val = row[field2]
+    #
+    #         # 更新或者创建对象
+    #         obj, created = Iris.objects.create(
+    #             **{col_names[field1]: field1_val},
+    #             defaults={col_names[field2]: field2_val}
+    #         )
+    #
+    #     print("成功读取文件至数据库"+database_name)
+    ''''''
+
+
+# ========= 鸢尾花数据集的查询 ========= #
+class IrisView(GenericAPIView):
+    queryset = Iris.objects.all()
+    serializer_class = IrisSerializer
+
+    def get(self, request, *args, **kwargs):
+        ser = self.serializer_class(self.queryset, many=True)
+        return Response({
+            "code": 200,
+            "msg": "获取成功",
+            "data": ser.data
+        }, status=status.HTTP_200_OK)
+
+
+# ================================================================================================================== #
+'''聚类结果获取接口'''
+
+
+class ClusterView(APIView):
+
+    def get(self, request, *args, **kwargs):
+        ser = self.serializer_class(self.queryset, many=True)
+        return Response({
+            "code": 200,
+            "msg": "获取成功",
+            "data": ser.data
+        }, status=status.HTTP_200_OK)
