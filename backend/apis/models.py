@@ -52,7 +52,7 @@ class File(models.Model):
         db_table = 'file'
         verbose_name = '文件'
 
-# ========= Apriori ========= #
+# ========= Aprioridb ========= #
 class Aprioridb(models.Model):
     id = models.IntegerField(primary_key=True, auto_created=True)
     item1 = models.CharField(max_length=20, null=True)
@@ -77,3 +77,15 @@ class Aprioridb(models.Model):
 #     class Meta:
 #         db_table = 'ClassifyResults'
 #         verbose_name = '图片结果'
+
+# ========= RegressionData ========= #
+class RegressionData(models.Model):
+    x = models.FloatField()
+    y = models.FloatField()
+
+    def __str__(self):
+        return self.id
+
+    class Meta:
+        db_table = 'RegressionData'
+        verbose_name = '回归数据'

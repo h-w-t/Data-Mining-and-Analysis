@@ -1,13 +1,15 @@
-from django.shortcuts import render
-from rest_framework import viewsets, status
-from rest_framework.response import Response
+from rest_framework import status
 from rest_framework.generics import GenericAPIView
+from rest_framework.response import Response
 from rest_framework.views import APIView
-# import csv
 
-from .models import File, Iris, OrderSum, PositionInfo
-from .serializers import FileSerializer, IrisSerializer
-from .algorithms import Classifier
+from .algorithms import Apriori
+from .models import File, Iris, Aprioridb, RegressionData
+from .serializers import FileSerializer, IrisSerializer, OrderSerializer, RegressionDataSerializer, \
+    AprioriResultSerializer
+
+
+# import csv
 
 
 # ========= 文件上传 ========= #
@@ -65,15 +67,68 @@ class FileView(GenericAPIView):
     ''''''
 
 
-# ========= 鸢尾花数据集的查询 ========= #
+# ========= 关联规则算法 ========= #
+# 购物清单的查询
+class OrderView(GenericAPIView):
+    queryset = Aprioridb.objects.all()
+    serializer_class = OrderSerializer
+
+    def get(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        ser = self.serializer_class(queryset, many=True)
+        return Response({
+            "code": 200,
+            "msg": "获取成功",
+            "data": ser.data
+        }, status=status.HTTP_200_OK)
+
+
+class AprioriView(APIView):
+    min_sup = float(0)
+    min_conf = float(0)
+    def post(self, request, min_sup, min_conf, *args, **kwargs):    # 参数的获取
+        self.min_sup = float(min_sup)
+        self.min_conf = float(min_conf)
+        return Response({
+            "code": 200,
+            "msg": "获取成功",
+            "data": {
+                "min_sup": self.min_sup,
+                "min_conf": self.min_conf
+            }
+        }, status=status.HTTP_200_OK)
+
+    def get(self, request, *args, **kwargs):
+        apriori = Apriori(self.min_sup, self.min_conf)
+        result = apriori.result()
+        ser = AprioriResultSerializer(data={
+            "data": result
+        })
+        if ser.is_valid(raise_exception=True):
+            return Response({
+                "code": 200,
+                "msg": "获取置信度矩阵成功",
+                "data": ser.data
+            }, status=status.HTTP_200_OK)
+        else:
+            return Response({
+                "code": 400,
+                "msg": "获取置信度矩阵失败",
+                "data": ser.errors
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+
+# ========= 聚类算法(决策树) ========= #
+# 初始数据集的查询 (鸢尾花数据集的查询)
 
 
 # ========= 分类算法(决策树) ========= #
+# 鸢尾花数据集的查询
 class IrisView(GenericAPIView):
     queryset = Iris.objects.all()
     serializer_class = IrisSerializer
 
-    def get(self, request, *args, **kwargs):    # 鸢尾花数据集的查询
+    def get(self, request, *args, **kwargs):  # 鸢尾花数据集的查询
         queryset = self.get_queryset()  # 在get()方法中调用self.get_queryset()来获取queryset,而不是直接访问 self.queryset
         ser = self.serializer_class(queryset, many=True)
         return Response({
@@ -92,4 +147,18 @@ class ClassifyView(GenericAPIView):
         pass
 """
 
-# ========= 分类算法(决策树) ========= #
+
+# ========= 回归算法 ========= #
+# 初始数据集的查询
+class RegressionDataView(GenericAPIView):
+    queryset = RegressionData.objects.all()
+    serializer_class = RegressionDataSerializer
+
+    def get(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        ser = self.serializer_class(queryset, many=True)
+        return Response({
+            "code": 200,
+            "msg": "获取成功",
+            "data": ser.data
+        }, status=status.HTTP_200_OK)

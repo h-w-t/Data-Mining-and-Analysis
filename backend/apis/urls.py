@@ -17,11 +17,19 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from django.urls.conf import include
-from .views import FileView, IrisView
+from .views import FileView, IrisView, OrderView, RegressionDataView, AprioriView
 
 urlpatterns = [
     # path("admin/", admin.site.urls),
     path('file/upload/', FileView.as_view(), name='file-upload'),
     path('classify/all/', IrisView.as_view(), name='iris-all'),
+
+    path('rules/all/', OrderView.as_view(), name='rules-all'),
+    path('rules/parameter/<min_sup>&<min_conf>/', AprioriView.as_view(), name='rules-parameter'),
+    path('rules/result/', AprioriView.as_view(), name='rules-result'),
+
+    path('cluster/all/', IrisView.as_view(), name='cluster-all'),
+
+    # path('regression/all/', RegressionDataView.as_view(), name='regression-all'),
     # path('classify/<int:tree_height>&<int:child_node_num>/', ClassifyView.as_view(), name='classify-parameter'),
 ]

@@ -10,6 +10,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\backend\data\Regression_data.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\backend\data\iris.csv">
           <value>
             <Attribute>
