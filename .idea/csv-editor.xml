@@ -17,7 +17,28 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\backend\data\blobs.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\backend\data\iris.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\backend\data\moons.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\backend\data\ordersum.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />

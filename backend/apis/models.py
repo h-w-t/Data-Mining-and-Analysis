@@ -67,17 +67,6 @@ class Aprioridb(models.Model):
         db_table = 'aprioridb'
         verbose_name = '关联规则'
 
-# ========= ClassifyResults ========= #
-
-# class ClassifyResults(models.Model):
-#     tree_height = models.IntegerField()
-#     child_node_num = models.IntegerField()
-#     png = models.ImageField(upload_to='png/')
-#
-#     class Meta:
-#         db_table = 'ClassifyResults'
-#         verbose_name = '图片结果'
-
 # ========= RegressionData ========= #
 class RegressionData(models.Model):
     x = models.FloatField()
@@ -89,3 +78,30 @@ class RegressionData(models.Model):
     class Meta:
         db_table = 'RegressionData'
         verbose_name = '回归数据'
+
+# ========= BlobsDataSet ========= #
+class BlobsDataSet(models.Model):
+    x = models.FloatField()
+    y = models.FloatField()
+    label = models.IntegerField()
+
+    def __str__(self):
+        return self.id
+
+    class Meta:
+        db_table = 'BlobsDataSet'
+        verbose_name = 'Blobs数据集'
+
+
+# ========= MoonsDataSet ========= #
+class MoonsDataSet(models.Model):
+    x = models.FloatField()
+    y = models.FloatField()
+    label = models.IntegerField()
+
+    def __str__(self):
+        return self.id
+
+    class Meta:
+        db_table = 'MoonsDataSet'
+        verbose_name = 'Moons数据集'

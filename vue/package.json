@@ -13,6 +13,7 @@
     "core-js": "^3.8.3",
     "echarts": "^5.4.2",
     "echarts-gl": "^2.0.9",
+    "echarts-stat": "^1.2.0",
     "element-ui": "^2.15.13",
     "pnpm": "^8.6.3",
     "vue": "^2.5.17",

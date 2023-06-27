@@ -26,21 +26,47 @@ class OrderSerializer(serializers.ModelSerializer):
         model = Aprioridb
         fields = "__all__"
 
-# class ClassifyResultsSerializer(serializers.ModelSerializer):
-#     '''分类结果序列化器'''
-#
-#     class Meta:
-#         model = ClassifyResults
-#         fields = "__all__"
-
 # ========= RegressionData序列化器 ========= #
 class RegressionDataSerializer(serializers.ModelSerializer):
     '''回归数据序列化器'''
 
     class Meta:
-        model = OrderSum
+        model = RegressionData
         fields = "__all__"
 
-# ========= 关联规则结果序列化器 ========= #
-class AprioriResultSerializer(serializers.Serializer):
+# ========= 关联规则参数序列化器 ========= #
+class AprioriParameterSerializer(serializers.Serializer):
+    min_sup = serializers.FloatField()
+    min_conf = serializers.FloatField()
+
+# ========= List序列化器 ========= #
+class ListSerializer(serializers.Serializer):
     data = serializers.ListField()
+
+# ========= 聚类数据集序列化器 ========= #
+class ClusterDataSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    x = serializers.FloatField()
+    y = serializers.FloatField()
+    # label = serializers.IntegerField()
+
+class DBSCANResultSerializer(serializers.Serializer):
+    # id = serializers.IntegerField()
+    x = serializers.FloatField()
+    y = serializers.FloatField()
+    predict_result = serializers.IntegerField()
+
+# ========= 聚类参数集序列化器 ========= #
+class KmeansParameterSerializer(serializers.Serializer):
+    k = serializers.IntegerField()
+
+class DBSCANParameterSerializer(serializers.Serializer):
+    eps = serializers.FloatField()
+    min_samples = serializers.IntegerField()
+
+# ========= 聚类结果序列化器 ========= #
+
+# ========= 分类参数序列化器 ========= #
+class ClassifyParameterSerializer(serializers.Serializer):
+    tree_height = serializers.IntegerField()
+    child_node_num = serializers.IntegerField()
