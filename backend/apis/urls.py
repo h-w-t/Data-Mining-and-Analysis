@@ -14,22 +14,29 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.contrib import admin
 from django.urls import path
-from django.urls.conf import include
-from .views import FileView, IrisView, OrderView, RegressionDataView, AprioriView
+
+from .views import FileView, IrisView, OrderView, AprioriView, BlobsDataView, MoonsDataView, KmeansView, \
+    RegressionDataView, ClassifyView, BlobsDataForEchartsView, MoonsDataForEchartsView, RegressionDataForEchartsView, \
+    DBSCANView
 
 urlpatterns = [
-    # path("admin/", admin.site.urls),
     path('file/upload/', FileView.as_view(), name='file-upload'),
-    path('classify/all/', IrisView.as_view(), name='iris-all'),
 
     path('rules/all/', OrderView.as_view(), name='rules-all'),
     path('rules/parameter/<min_sup>&<min_conf>/', AprioriView.as_view(), name='rules-parameter'),
     path('rules/result/', AprioriView.as_view(), name='rules-result'),
 
-    path('cluster/all/', IrisView.as_view(), name='cluster-all'),
+    path('cluster/data/blobs/', BlobsDataView.as_view(), name='cluster-blobs-data'),
+    path('cluster/data/blobs/echarts/', BlobsDataForEchartsView.as_view(), name='cluster-blobs-data-for-echarts'),
+    path('cluster/data/moons/', MoonsDataView.as_view(), name='cluster-moons-data'),
+    path('cluster/data/moons/echarts/', MoonsDataForEchartsView.as_view(), name='cluster-moons-data-for-echarts'),
+    path('cluster/kmeans/parameter/<int:k>/', KmeansView.as_view(), name='cluster-kmeans-parameter'),
+    path('cluster/dbscan/parameter/<eps>&<min_samples>/', DBSCANView.as_view(), name='cluster-DBSCAN-parameter'),
 
-    # path('regression/all/', RegressionDataView.as_view(), name='regression-all'),
-    # path('classify/<int:tree_height>&<int:child_node_num>/', ClassifyView.as_view(), name='classify-parameter'),
+    path('regression/all/', RegressionDataView.as_view(), name='regression-all'),
+    path('regression/data/echarts/', RegressionDataForEchartsView.as_view(), name='regression-data-for-echarts'),
+
+    path('classify/all/', IrisView.as_view(), name='iris-all'),
+    path('classify/parameter/<int:tree_height>&<int:child_node_num>/', ClassifyView.as_view(), name='classify-parameter'),
 ]

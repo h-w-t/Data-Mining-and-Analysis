@@ -204,7 +204,7 @@
 
 import Aside from "@/components/Aside";
 import Header from "@/components/Header";
-import User from "@/views/past/User";
+import User from "@/views/DA/User";
 
 
 

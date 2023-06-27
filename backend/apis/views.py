@@ -3,13 +3,11 @@ from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .algorithms import Apriori
-from .models import File, Iris, Aprioridb, RegressionData
+from .algorithms import Apriori, Clustering, Regression
+from .models import File, Iris, Aprioridb, RegressionData, BlobsDataSet, MoonsDataSet
 from .serializers import FileSerializer, IrisSerializer, OrderSerializer, RegressionDataSerializer, \
-    AprioriResultSerializer
-
-
-# import csv
+    ListSerializer, ClusterDataSerializer, AprioriParameterSerializer, KmeansParameterSerializer, \
+    ClassifyParameterSerializer, DBSCANParameterSerializer
 
 
 # ========= 文件上传 ========= #
@@ -84,42 +82,147 @@ class OrderView(GenericAPIView):
 
 
 class AprioriView(APIView):
-    min_sup = float(0)
-    min_conf = float(0)
-    def post(self, request, min_sup, min_conf, *args, **kwargs):    # 参数的获取
-        self.min_sup = float(min_sup)
-        self.min_conf = float(min_conf)
-        return Response({
-            "code": 200,
-            "msg": "获取成功",
-            "data": {
-                "min_sup": self.min_sup,
-                "min_conf": self.min_conf
-            }
-        }, status=status.HTTP_200_OK)
+    min_sup = None
+    min_conf = None
 
-    def get(self, request, *args, **kwargs):
-        apriori = Apriori(self.min_sup, self.min_conf)
-        result = apriori.result()
-        ser = AprioriResultSerializer(data={
-            "data": result
+    def post(self, request, min_sup, min_conf, *args, **kwargs):  # 参数的获取
+        self.min_sup = min_sup
+        self.min_conf = min_conf
+        ser = AprioriParameterSerializer(data={
+            "min_sup": self.min_sup,
+            "min_conf": self.min_conf
         })
         if ser.is_valid(raise_exception=True):
             return Response({
                 "code": 200,
-                "msg": "获取置信度矩阵成功",
+                "msg": "参数获取成功",
                 "data": ser.data
             }, status=status.HTTP_200_OK)
         else:
             return Response({
                 "code": 400,
-                "msg": "获取置信度矩阵失败",
+                "msg": "参数获取失败",
                 "data": ser.errors
             }, status=status.HTTP_400_BAD_REQUEST)
 
+    def get(self, request, *args, **kwargs):
+        apriori = Apriori(self.min_sup, self.min_conf)
+        result = apriori.result()
+        ser = ListSerializer(instance={
+            "data": result
+        })
+        return Response({
+            "code": 200,
+            "msg": "获取置信度矩阵成功",
+            "data": ser.data['data']
+        }, status=status.HTTP_200_OK)
+
 
 # ========= 聚类算法(决策树) ========= #
-# 初始数据集的查询 (鸢尾花数据集的查询)
+# 初始数据集的获取
+class BlobsDataView(GenericAPIView):
+    queryset = BlobsDataSet.objects.all()
+    serializer_class = ClusterDataSerializer
+
+    def get(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        ser = self.serializer_class(instance=queryset, many=True)
+        return Response({
+            "code": 200,
+            "msg": "获取成功",
+            "data": ser.data
+        }, status=status.HTTP_200_OK)
+
+
+class MoonsDataView(GenericAPIView):
+    queryset = MoonsDataSet.objects.all()
+    serializer_class = ClusterDataSerializer
+
+    def get(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        ser = self.serializer_class(queryset, many=True)
+        return Response({
+            "code": 200,
+            "msg": "获取成功",
+            "data": ser.data
+        }, status=status.HTTP_200_OK)
+
+
+# 初始数据集的获取(Echarts)
+class BlobsDataForEchartsView(APIView):
+    def get(self, request, *args, **kwargs):
+        cluster = Clustering()
+        scatters_loc = cluster.original_blobs_data_for_echarts()
+        ser = ListSerializer(instance={
+            "data": scatters_loc
+        })
+        return Response({
+            "code": 200,
+            "msg": "获取成功",
+            "data": ser.data['data']
+        }, status=status.HTTP_200_OK)
+
+class MoonsDataForEchartsView(APIView):
+    def get(self, request, *args, **kwargs):
+        cluster = Clustering()
+        scatters_loc = cluster.original_moons_data_for_echarts()
+        ser = ListSerializer(instance={
+            "data": scatters_loc
+        })
+        return Response({
+            "code": 200,
+            "msg": "获取成功",
+            "data": ser.data['data']
+        }, status=status.HTTP_200_OK)
+
+
+class KmeansView(APIView):
+    # 参数的获取
+    def __init__(self):
+        self.k = None
+
+    def post(self, request, k, *args, **kwargs):
+        self.k = k
+        ser = KmeansParameterSerializer(data={
+            'k': k})
+        if ser.is_valid(raise_exception=True):
+            return Response({
+                "code": 200,
+                "msg": "参数获取成功",
+                "data": ser.data
+            }, status=status.HTTP_200_OK)
+        else:
+            return Response({
+                "code": 400,
+                "msg": "参数获取失败",
+                "data": ser.errors
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+class DBSCANView(APIView):
+    def __init__(self):
+        self.eps = None
+        self.min_samples = None
+
+    # 参数的获取
+    def post(self, request, eps, min_samples, *args, **kwargs):
+        self.eps = float(eps)
+        self.min_samples = int(min_samples)
+        ser = DBSCANParameterSerializer(data={
+            "eps": self.eps,
+            "min_samples": self.min_samples
+        })
+        if ser.is_valid(raise_exception=True):
+            return Response({
+                "code": 200,
+                "msg": "参数获取成功",
+                "data": ser.data
+            }, status=status.HTTP_200_OK)
+        else:
+            return Response({
+                "code": 400,
+                "msg": "参数获取失败",
+                "data": ser.errors
+            }, status=status.HTTP_400_BAD_REQUEST)
 
 
 # ========= 分类算法(决策树) ========= #
@@ -138,14 +241,30 @@ class IrisView(GenericAPIView):
         }, status=status.HTTP_200_OK)
 
 
-"""
-class ClassifyView(GenericAPIView):
-    '''分类算法视图'''
-    queryset = ClassifyResults.objects.all()
-    serializer_class = ClassifyResultsSerializer
+class ClassifyView(APIView):
+    def __init__(self):
+        self.tree_height = None
+        self.child_node_num = None
+
+    # 参数的获取
     def post(self, request, tree_height, child_node_num, *args, **kwargs):
-        pass
-"""
+        self.tree_height = tree_height
+        self.child_node_num = child_node_num
+        ser = ClassifyParameterSerializer(data={
+            'tree_height': tree_height,
+            'child_node_num': child_node_num})
+        if ser.is_valid(raise_exception=True):
+            return Response({
+                "code": 200,
+                "msg": "参数获取成功",
+                "data": ser.data
+            }, status=status.HTTP_200_OK)
+        else:
+            return Response({
+                "code": 400,
+                "msg": "参数获取失败",
+                "data": ser.errors
+            }, status=status.HTTP_400_BAD_REQUEST)
 
 
 # ========= 回归算法 ========= #
@@ -161,4 +280,17 @@ class RegressionDataView(GenericAPIView):
             "code": 200,
             "msg": "获取成功",
             "data": ser.data
+        }, status=status.HTTP_200_OK)
+
+class RegressionDataForEchartsView(APIView):
+    def get(self, request, *args, **kwargs):
+        regression = Regression()
+        scatters_loc = regression.original_regression_data_for_echarts()
+        ser = ListSerializer(instance={
+            "data": scatters_loc
+        })
+        return Response({
+            "code": 200,
+            "msg": "获取成功",
+            "data": ser.data['data']
         }, status=status.HTTP_200_OK)

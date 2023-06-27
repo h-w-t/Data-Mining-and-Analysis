@@ -4,10 +4,11 @@ import numpy as np
 import pydotplus as pydotplus
 from sklearn.model_selection import train_test_split, GridSearchCV
 
-from .models import Iris, OrderSum, PositionInfo, Aprioridb
+from .models import Iris, OrderSum, PositionInfo, Aprioridb, MoonsDataSet, RegressionData, BlobsDataSet
 import pandas as pd
 from sklearn.decomposition import PCA
 from sklearn.tree import DecisionTreeClassifier, plot_tree, export_graphviz
+
 
 # ========= 关联规则算法 ========= #
 class Apriori:
@@ -28,8 +29,8 @@ class Apriori:
         dataset = self.get_data()
         candidates = []
         for i in range(len(dataset.index)):  # 遍历每一行
-            for j in range(len(dataset.columns)):    # 遍历每一行的每一项
-                item = str(dataset.iloc[i, j])   # 获取每一项
+            for j in range(len(dataset.columns)):  # 遍历每一行的每一项
+                item = str(dataset.iloc[i, j])  # 获取每一项
                 if item != 'None':  # 如果该项不为 NaN
                     if item not in candidates:  # 如果该项不在候选项集中
                         candidates.append(item)  # 将每一项加入候选项集
@@ -43,24 +44,27 @@ class Apriori:
         # 初始化计数矩阵
         count_matrix = pd.DataFrame(np.zeros((len(candidates), len(candidates))), index=candidates, columns=candidates)
         # 得到事务集之间的支持度
-        for transaction in dataset.values:  # 遍历每一行
-            for item in transaction:    # 遍历每一行的每一项
-                if str(item) != 'None':  # 如果该项不为 NaN
+        for transaction in dataset.values:
+            for item in transaction:
+                if str(item) != 'None':
                     for other_item in transaction:
                         if str(other_item) != 'None':
                             count_matrix.at[item, other_item] += 1
-        # 得到每项事务的支持度
-        item_counts = dataset.apply(pd.value_counts).fillna(0).sum(axis=1).reindex(['面包', '可乐', '麦片', '牛奶', '鸡蛋'])
+        # 计算每项事务的支持度
+        item_counts = dataset.apply(pd.value_counts).fillna(0).sum(axis=1).reindex(candidates)
+        total_count = len(dataset)
+        # 转化为频率
+        item_freq = item_counts / total_count
+        count_matrix = count_matrix.div(total_count)
         # 置信度 = 事务集之间的支持度 / 每项事务的支持度
-        confidence_matrix = count_matrix.div(item_counts, axis=0)
-        # print(confidence_matrix)
+        confidence_matrix = count_matrix.div(item_freq, axis=0)
+        print(confidence_matrix)
         return confidence_matrix
-
 
     # 将置信度矩阵转化为可用于Echarts热力图展示的数据格式
     def reformat(self):
         original_matrix = self.get_confidence_matrix()
-        reformatted_matrix = []     # 初始化矩阵
+        reformatted_matrix = []  # 初始化矩阵
         for i in range(len(original_matrix.index)):
             for j in range(len(original_matrix.columns)):
                 reformatted_matrix.append([i, j, round(original_matrix.iloc[i, j], 2)])
@@ -75,29 +79,45 @@ class Apriori:
 # ========= 聚类算法 ========= #
 class Clustering:
     # 初始化
-    def __init__(self, data):
-        self.dataset = self.get_data()
+    def __init__(self):
+        self.db1 = BlobsDataSet
+        self.db2 = MoonsDataSet
+        self.blobs_dataset = self.get_blobs_data()
+        self.moons_dataset = self.get_moons_data()
+
 
     # 从数据库获取数据集
-    def get_data(self):
-        queryset = Iris.objects.all()
+    def get_blobs_data(self):
+        queryset = self.db1.objects.all()
         dataset = pd.DataFrame(list(queryset.values()))
-        dataset = dataset.drop(['id', 'Species'], axis=1)
         return dataset
 
-    # pca降维
-    def pca(self, dataset):
-        dataset = self.dataset
-        pca = PCA(n_components=2)
-        X_pca = pca.fit_transform(dataset)
+    def get_moons_data(self):
+        queryset = self.db2.objects.all()
+        dataset = pd.DataFrame(list(queryset.values()))
+        return dataset
 
-    # K-Means聚类
-    def kmeans(self):
-        pass
+    # 将初始数据集转化为可用于Echarts散点图展示的数据格式
+    def original_blobs_data_for_echarts(self):
+        dataset = self.get_blobs_data()
+        dataset = dataset.drop(['label'], axis=1)
+        reformatted_dataset = []
+        for i in range(len(dataset.index)):
+            reformatted_dataset.append([dataset.iloc[i, 1], dataset.iloc[i, 2]])
+        return reformatted_dataset
+
+    def original_moons_data_for_echarts(self):
+        dataset = self.get_moons_data()
+        dataset = dataset.drop(['label'], axis=1)
+        reformatted_dataset = []
+        for i in range(len(dataset.index)):
+            reformatted_dataset.append([dataset.iloc[i, 1], dataset.iloc[i, 2]])
+        return reformatted_dataset
 
     # 返回结果
     def result(self):
-        pass
+        self.blobs_dataset = self.get_blobs_data()
+        self.moons_dataset = self.get_moons_data()
 
 
 # ========= 分类算法（决策树） ========= #
@@ -132,12 +152,12 @@ class Classifier:
 
     # 绘制决策树图并保存到本地
     def draw_tree(self, tree_model):
-        dot_data = StringIO()   # 创建一个内存空间
-        export_graphviz(tree_model, out_file=dot_data,      # 绘制决策树图
+        dot_data = StringIO()  # 创建一个内存空间
+        export_graphviz(tree_model, out_file=dot_data,  # 绘制决策树图
                         filled=True, rounded=True,
                         special_characters=True, feature_names=self.get_data().columns)
         graph = pydotplus.graph_from_dot_data(dot_data.getvalue())  # 从内存空间中获取图
-        graph.write_png('../decision_tree.png')    # 保存图
+        graph.write_png('../decision_tree.png')  # 保存图
 
     # 返回结果
     def result(self):
@@ -149,3 +169,20 @@ class Classifier:
     def get_png(self):
         self.draw_tree(self.train_tree(self.get_data()))
         return 'decision_tree.png'
+
+# ========= 回归算法 ========= #
+class Regression:
+    def __init__(self):
+        self.database = RegressionData
+
+    def get_data(self):
+        queryset = self.database.objects.all()
+        dataset = pd.DataFrame(list(queryset.values()))
+        return dataset
+
+    def original_regression_data_for_echarts(self):
+        dataset = self.get_data()
+        reformatted_dataset = []
+        for i in range(len(dataset.index)):
+            reformatted_dataset.append([dataset.iloc[i, 1], dataset.iloc[i, 2]])
+        return reformatted_dataset

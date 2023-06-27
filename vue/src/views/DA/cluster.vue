@@ -1,187 +1,152 @@
 <template>
   <div>
-    <div class="settings"  >
-      <!--      <div class="settings" style="display: flex; justify-content: center;">-->
-      <el-row>
-        <el-col :span="12" class="centered-col">
-          <el-card style="width: 80%; height: 40%;" class="box-card">
+    <el-row style=" margin-bottom: 20px;width: 100%; height: 30%; display: flex; justify-content: center; align-items: center;">
+    <el-card style="width: 40%; height: 30%;" class="box-card">
             <div slot="header" class="clearfix">
               <span>数据准备</span>
-              <el-button size="medium" style="float: right; padding: 3px 0;" type="primary">分析数据</el-button>
+              <el-button size="medium" type="primary" class="ml-5" style="  float: right; padding: 3px 0" @click="analyzeData" >分析数据<i class="el-icon-bottom"></i></el-button>
+              <el-button size="medium" type="primary" class="ml-5" style="  float: right; padding: 3px 0" @click="loadTable" >载入数据<i class="el-icon-bottom"></i></el-button>
+              <el-button size="medium" type="primary" class="ml-5" style="  float: right; padding: 3px 0" @click="cleananalyze" >清除分析<i class="el-icon-bottom"></i></el-button>
             </div>
-<!--            <el-upload-->
-<!--                class="upload-demo"-->
-<!--                action="https://jsonplaceholder.typicode.com/posts/"-->
-<!--                :on-preview="handlePreview"-->
-<!--                :on-remove="handleRemove"-->
-<!--                :before-remove="beforeRemove"-->
-<!--                multiple-->
-<!--                :limit="3"-->
-<!--                :on-exceed="handleExceed"-->
-<!--                :file-list="fileList">-->
-<!--              <div class="upload-container">-->
-<!--                <el-button size="medium" type="primary">上传数据文件</el-button>-->
-<!--                <div class="upload-tip">请上传 CSV 文件</div>-->
-<!--              </div>-->
-<!--            </el-upload>-->
             <el-upload action="http://localhost:9090/cluster/import" :show-file-list="true" accept="xlsx" :on-success="handleExcelImportSuccess" style="display: inline-block">
               <el-button type="primary" class="ml-5">导入数据 <i class="el-icon-bottom"></i></el-button>
             </el-upload>
-            <el-input
-                placeholder="请输入k值"
-                v-model="input1"
-                clearable>
-            </el-input>
-
-
+            <el-input placeholder="请输入k值" v-model="input1" clearable></el-input>
           </el-card>
-        </el-col>
-        <el-col :span="12" class="centered-col">
-<!--          <el-card style="width: 80%; height: 40%;" class="box-card">-->
-<!--            <div slot="header" class="clearfix">-->
-<!--              <span>聚类情况</span>-->
+    </el-row>
 
-<!--            </div>-->
-<!--            <div>{{"聚类"}}</div>-->
-<!--          </el-card>-->
-        </el-col>
-      </el-row>
-    </div>
-
-
-
-    <div class="settings"  >
-      <!--      <div class="settings" style="display: flex; justify-content: center;">-->
-      <el-row>
-        <el-col :span="12" class="centered-col">
-
-          <el-card style="width: 80%; height: 40%;" class="box-card">
+    <el-row style=" margin-bottom: 20px;width: 100%; height: 30%; display: flex; justify-content: center; align-items: center;">
+          <el-card v-if="showTable" style="width: 50%; height: 40%;margin: 0 auto;" class="box-card">
             <div slot="header" class="clearfix">
               <span>原始数据表</span>
             </div>
-            <el-table
-                :data="tableData"
-                style="width: 100%">
-              <el-table-column
-                  type="index"
-                  :index="indexMethod">
-              </el-table-column>
-              <el-table-column
-                  prop="date"
-                  label="x"
-                  width="180">
-              </el-table-column>
-              <el-table-column
-                  prop="name"
-                  label="y"
-                  >
-              </el-table-column>
-
-            </el-table>
-
+            <el-table :data="tableData" height="250" border style="width: 100%">
+              <el-table-column prop="id" label="ID" ></el-table-column>
+              <el-table-column prop="x" label="X" ></el-table-column>
+              <el-table-column prop="y" label="Y" ></el-table-column>
+              </el-table>
           </el-card>
-        </el-col>
-        <el-col :span="12" class="centered-col">
-          <el-card style="width: 80%; height: 40%;" class="box-card">
+    </el-row>
+
+    <el-row style=" margin-bottom: 20px;width: 100%; height: 30%; display: flex; justify-content: center; align-items: center;">
+    <el-card v-if="showResult" style="width: 80%; height: 40%;" class="box-card">
             <div slot="header" class="clearfix">
-              <span>散点图输出</span>
+              <span>聚类情况输出</span>
             </div>
             <div>
-              <div id="main" style="width: 100%; height: 90vh; "></div>
+              <div id="main" style="width: 70%; height: 90vh; "></div>
             </div>
           </el-card>
-        </el-col>
-      </el-row>
-    </div>
+
+</el-row>
 
   </div>
 </template>
 
 <script>
-import * as echarts from 'echarts';
-
+// import * as echarts from 'echarts';
+import axios from "axios";
+// import ecStat from 'echarts-stat';
 
 export default {
 
   mounted(){
-    var chartDom = document.getElementById('main');
-    var myChart = echarts.init(chartDom);
-    var option;
+    this.fetchDataFromBackend(); // 调用后端数据获取函数
+    this.fetchData();
 
-    option = {
-      xAxis: {},
-      yAxis: {},
-      series: [
-        {
-          symbolSize: 20,
-          data: [
-              //散点图的横纵数据，不过这个样例没有带不同颜色的聚类效果，后续再后面根据不同聚类情况可以再加
-            [10.0, 8.04],
-            [8.07, 6.95],
-            [13.0, 7.58],
-            [9.05, 8.81],
-            [11.0, 8.33],
-            [14.0, 7.66],
-            [13.4, 6.81],
-            [10.0, 6.33],
-            [14.0, 8.96],
-            [12.5, 6.82],
-            [9.15, 7.2],
-            [11.5, 7.2],
-            [3.03, 4.23],
-            [12.2, 7.83],
-            [2.02, 4.47],
-            [1.05, 3.33],
-            [4.05, 4.96],
-            [6.03, 7.24],
-            [12.0, 6.26],
-            [12.0, 8.84],
-            [7.08, 5.82],
-            [5.02, 5.68]
-          ],
-          type: 'scatter'
-        }
-      ]
-    };
 
-    option && myChart.setOption(option);
+
   },
   // eslint-disable-next-line vue/multi-word-component-names
   name: "rules",
   data() {
     return {
       input1: '',//聚类的k值
-
-      tableData: [{
-        date: '10', name: '20.7',},
-        {date: '6.95', name: '8.07',},
-        {date: '13.0', name: '7.58',},
-        {date: '14.0', name: '7.2',},
-        { date: '10.0', name: '8.04' },
-        { date: '8.07', name: '6.95' },
-        { date: '13.0', name: '7.58' },
-        { date: '9.05', name: '8.81' },
-        { date: '11.0', name: '8.33' },
-        { date: '14.0', name: '7.66' },
-        { date: '13.4', name: '6.81' },
-        { date: '10.0', name: '6.33' },
-        { date: '14.0', name: '8.96' },
-        { date: '12.5', name: '6.82' },
-        { date: '9.15', name: '7.2' },
-        { date: '11.5', name: '7.2' },
-        { date: '3.03', name: '4.23' },
-        ],
-      fileList:[],
-      // fileList: [{name: 'food.jpeg', url: 'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100'},
-      //   {name: 'food2.jpeg', url: 'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100'}],
-
-
+      clusterCount: '', // echarts的clusterCount属性值
+      tableData: [],
+      showTable: false,
+      showResult:false,
+      originalData: [], // 原始数据
     };
   },
   methods: {
+    fetchData() {
+      // 进行 API 调用以获取数据
+      axios
+          .get('http://localhost:9090/cluster/data')
+          .then((response) => {
+            this.tableData = response.data;
+            this.showTable = true;
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+    },
+
+    doSomethingWithInput1Value(value) {
+      // 在这里根据需要对 input1 的值进行处理
+      console.log('Input1 value:', value);
+      // 其他处理逻辑...
+    },
+
+    analyzeData() {
+
+      // 获取输入框的值
+      const input1Value = this.input1;
+
+      // 在前端使用 input1Value 的值
+      this.doSomethingWithInput1Value(input1Value);
+      // 构造要发送给后端的数据对象
+      const data = {
+        input1: input1Value,
+
+      };
+      this.clusterCount = input1Value;
+
+      const url = `http://localhost:8000/apis/iris/classify/${input1Value}/`;
+
+      // 发送数据到后端
+      axios.post(url, data)
+          .then(response => {
+            // 处理成功响应
+            console.log(response.data);
+          })
+          .catch(error => {
+            // 处理错误响应
+            console.error(error);
+          });
+    },
+    fetchDataFromBackend() {
+      const url_blobs = 'http://localhost:8000/apis/cluster/data/blobs/echarts/';
+      axios.get(url_blobs)
+          .then(response => {
+            const responseData = response.data.data;
+            // 将后端传来的数据转换为表格组件需要的格式
+            const tableData = responseData.map(item => {
+              return {
+                id:item.id,
+                x:item.x,
+                y:item.y,
+              };
+            });
+            this.tableData = tableData;
+            console.log(this.tableData);
+          })
+          .catch(error => {
+            console.error(error);
+          });
+    },
+    loadTable(){
+      this.showTable=true;
+    },
+    cleananalyze(){
+      this.showTable=false;
+      this.showResult=false
+    },
     handleExcelImportSuccess() {
       this.$message.success("导入成功")
       this.load()
+      this.fetchData();
     },
     indexMethod(index){
       return index+1;
@@ -204,31 +169,5 @@ export default {
 </script>
 
 <style>
-.container {
-  display: flex;
-  justify-content: center;
-}
 
-.centered-col {
-  display: flex;
-  justify-content: center;
-}
-
-.settings {
-  margin-bottom: 20px;
-}
-.content {
-  margin-bottom: 20px;
-}
-.actions {
-  text-align: center;
-}
-.upload-container {
-  display: flex;
-  align-items: center;
-}
-
-.upload-tip {
-  margin-left: 10px;
-}
 </style>

@@ -89,3 +89,30 @@ class RegressionData(models.Model):
     class Meta:
         db_table = 'RegressionData'
         verbose_name = '回归数据'
+
+# ========= BlobsDataSet ========= #
+class BlobsDataSet(models.Model):
+    x = models.FloatField()
+    y = models.FloatField()
+    label = models.IntegerField()
+
+    def __str__(self):
+        return self.id
+
+    class Meta:
+        db_table = 'BlobsDataSet'
+        verbose_name = 'Blobs数据集'
+
+
+# ========= MoonsDataSet ========= #
+class MoonsDataSet(models.Model):
+    x = models.FloatField()
+    y = models.FloatField()
+    label = models.IntegerField()
+
+    def __str__(self):
+        return self.id
+
+    class Meta:
+        db_table = 'MoonsDataSet'
+        verbose_name = 'Moons数据集'
