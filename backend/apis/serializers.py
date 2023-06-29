@@ -64,7 +64,6 @@ class DBSCANParameterSerializer(serializers.Serializer):
     eps = serializers.FloatField()
     min_samples = serializers.IntegerField()
 
-# ========= 聚类结果序列化器 ========= #
 
 # ========= 分类参数序列化器 ========= #
 class ClassifyParameterSerializer(serializers.Serializer):
